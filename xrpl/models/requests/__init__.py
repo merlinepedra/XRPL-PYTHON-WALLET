@@ -1,4 +1,9 @@
-"""Request models."""
+"""
+Use these models to prepare or process `requests
+<https://xrpl.org/public-rippled-methods.html>`_
+to the XRP Ledger's core server (``rippled``).
+"""
+
 from xrpl.models.requests.account_channels import AccountChannels
 from xrpl.models.requests.account_currencies import AccountCurrencies
 from xrpl.models.requests.account_info import AccountInfo

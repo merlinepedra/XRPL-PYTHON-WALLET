@@ -1,12 +1,5 @@
-"""
-This request returns information about an account's Payment Channels. This includes
-only channels where the specified account is the channel's source, not the
-destination. (A channel's "source" and "owner" are the same.)
+"""Model for an AccountChannels request."""
 
-All information retrieved is relative to a particular version of the ledger.
-
-`See account_channels <https://xrpl.org/account_channels.html>`_
-"""
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
@@ -19,18 +12,23 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountChannels(Request):
     """
-    This request returns information about an account's Payment Channels. This includes
-    only channels where the specified account is the channel's source, not the
-    destination. (A channel's "source" and "owner" are the same.)
+    Represents an `account_channels <https://xrpl.org/account_channels.html>`_ request,
+    which retrieves information about an account's `payment channels
+    <https://xrpl.org/payment-channels.html>`_.
+
+    The response only includes payment channels where the specified account is the
+    channel's source, not the destination. (A channel's "source" and "owner" are the
+    same.)
 
     All information retrieved is relative to a particular version of the ledger.
-
-    `See account_channels <https://xrpl.org/account_channels.html>`_
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
     #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: The destination account of the payment channel.
+    #: If provided, filters results to payment channels
+    #: whose destination is this account.
     destination_account: Optional[str] = None
     limit: int = 200
     # marker data shape is actually undefined in the spec, up to the
