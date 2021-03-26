@@ -1,11 +1,5 @@
-"""
-This request retrieves information about an account, its activity, and its XRP
-balance.
+"""Model for an AccountInfo request."""
 
-All information retrieved is relative to a particular version of the ledger.
-
-`See account_info <https://xrpl.org/account_info.html>`_
-"""
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
@@ -18,12 +12,11 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountInfo(Request):
     """
-    This request retrieves information about an account, its activity, and its XRP
-    balance.
+    Represents an `account_info <https://xrpl.org/account_info.html>`_
+    request, which retrieves information about an account, including its
+    activity and XRP balance.
 
     All information retrieved is relative to a particular version of the ledger.
-
-    `See account_info <https://xrpl.org/account_info.html>`_
     """
 
     #: This field is required.

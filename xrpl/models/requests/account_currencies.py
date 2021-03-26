@@ -1,12 +1,5 @@
-"""
-This request retrieves a list of currencies that an account can send or receive,
-based on its trust lines.
+"""Model for an AccountCurrencies request."""
 
-This is not a thoroughly confirmed list, but it can be used to populate user
-interfaces.
-
-`See account_currencies <https://xrpl.org/account_currencies.html>`_
-"""
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
@@ -19,13 +12,13 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountCurrencies(Request):
     """
-    This request retrieves a list of currencies that an account can send or receive,
-    based on its trust lines.
+    Represents an `account_currencies <https://xrpl.org/account_currencies.html>`_,
+    request, which retrieves a list of currencies that an account can send or receive,
+    based on the account's `trust lines
+    <https://xrpl.org/trust-lines-and-issuing.html#trust-lines-and-issuing>`_.
 
-    This is not a thoroughly confirmed list, but it can be used to populate user
+    The list is not thoroughly confirmed, but you can use it to populate user
     interfaces.
-
-    `See account_currencies <https://xrpl.org/account_currencies.html>`_
     """
 
     #: This field is required.
