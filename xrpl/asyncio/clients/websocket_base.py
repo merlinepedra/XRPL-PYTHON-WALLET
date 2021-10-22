@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Dict, Optional, cast
+from typing import Any, Callable, Dict, Optional, cast
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -50,6 +50,8 @@ class WebsocketBase(Client):
         self._websocket: Optional[WebSocketClientProtocol] = None
         self._handler_task: Optional[Task[None]] = None
         self._messages: Optional[Queue[Dict[str, Any]]] = None
+        # trigger -> callback
+        self._callbacks: Dict[str, Callable[[Dict[str, Any]], None]] = {}
         super().__init__(url)
 
     def is_open(self: WebsocketBase) -> bool:
@@ -122,6 +124,23 @@ class WebsocketBase(Client):
 
             # enqueue the response for the message queue
             cast(Queue[Dict[str, Any]], self._messages).put_nowait(response_dict)
+
+            # trigger callback if needed
+            if response_dict["type"] in self._callbacks:
+                self._callbacks[response_dict["type"]](response_dict)
+
+    def on(
+        self: WebsocketBase, trigger: str, callback: Callable[[Dict[str, Any]], None]
+    ) -> None:
+        """
+        Add callbacks for a trigger. Similar to `client.on` in xrpl.js.
+
+        Arguments:
+            trigger: the "type" of the subscription.
+            callback: the method to trigger when a subscription occurs.
+        """
+        # TODO: allow multiple callbacks for a trigger
+        self._callbacks[trigger] = callback
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
