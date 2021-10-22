@@ -74,6 +74,10 @@ class RequestMethod(str, Enum):
     PING = "ping"
     RANDOM = "random"
 
+    # special stuff
+    LEDGER_ACCEPT = "ledger_accept"
+    FEDERATOR_INFO = "federator_info"
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
