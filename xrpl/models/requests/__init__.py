@@ -11,9 +11,11 @@ from xrpl.models.requests.book_offers import BookOffers
 from xrpl.models.requests.channel_authorize import ChannelAuthorize
 from xrpl.models.requests.channel_verify import ChannelVerify
 from xrpl.models.requests.deposit_authorized import DepositAuthorized
+from xrpl.models.requests.federator_info import FederatorInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.requests.gateway_balances import GatewayBalances
 from xrpl.models.requests.ledger import Ledger
+from xrpl.models.requests.ledger_accept import LedgerAccept
 from xrpl.models.requests.ledger_closed import LedgerClosed
 from xrpl.models.requests.ledger_current import LedgerCurrent
 from xrpl.models.requests.ledger_data import LedgerData
@@ -81,4 +83,6 @@ __all__ = [
     "TransactionEntry",
     "Tx",
     "Unsubscribe",
+    "FederatorInfo",
+    "LedgerAccept",
 ]

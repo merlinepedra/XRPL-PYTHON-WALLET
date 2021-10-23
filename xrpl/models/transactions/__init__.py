@@ -55,4 +55,5 @@ __all__ = [
     "TicketCreate",
     "TrustSet",
     "TrustSetFlag",
+    "TicketCreate",
 ]
