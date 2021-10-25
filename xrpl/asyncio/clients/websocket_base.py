@@ -172,8 +172,8 @@ class WebsocketBase(Client):
     async def _do_send(self: WebsocketBase, request: Request) -> None:
         # we need to set up a future here, even if no one cares about it, so
         # that if a user submits a few requests with the same ID they fail.
-        assert request.id is not None  # for mypy
-        self._set_up_future(request.id)
+        if request.id is not None:
+            self._set_up_future(request.id)
         await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
