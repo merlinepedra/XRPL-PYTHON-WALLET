@@ -25,7 +25,6 @@ class Client(ABC):
         """
         self.url = url
 
-    @abstractmethod
     async def request_impl(self: Client, request: Request) -> Response:
         """
         This is the main driver for a given Client's request. It must be
@@ -43,6 +42,7 @@ class Client(ABC):
         json_request = request_to_json_rpc(request)
         return json_to_response(await self.request_json_impl(json_request))
 
+    @abstractmethod
     async def request_json_impl(
         self: Client, request: Dict[str, Any]
     ) -> Dict[str, Any]:
