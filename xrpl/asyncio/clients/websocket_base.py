@@ -24,7 +24,7 @@ def _inject_request_id(request: Dict[str, Any]) -> Dict[str, Any]:
 
     Given a Request without an ID, make a copy with a randomly generated ID.
     """
-    if request["id"] is not None:
+    if "id" in request:
         return request
     request_dict = cast(Dict[str, Any], json.loads(json.dumps(request)))
     command = request["command"]
