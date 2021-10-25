@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Callable, Dict, Optional, cast
+from typing import Any, Callable, Dict, Optional, Union, cast
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -18,18 +18,18 @@ from xrpl.models.response import Response
 _REQ_ID_MAX: Final[int] = 1_000_000
 
 
-def _inject_request_id(request: Request) -> Request:
+def _inject_request_id(request: Dict[str, Any]) -> Dict[str, Any]:
     """
     Given a Request with an ID, return the same Request.
 
     Given a Request without an ID, make a copy with a randomly generated ID.
     """
-    if request.id is not None:
+    if request["id"] is not None:
         return request
-    request_dict = request.to_dict()
-    request_dict["id"] = f"{request.method}_{randrange(_REQ_ID_MAX)}"
-    resp = Request.from_dict(request_dict)
-    return resp
+    request_dict = cast(Dict[str, Any], json.loads(json.dumps(request)))
+    command = request["command"]
+    request_dict["id"] = f"{command}_{randrange(_REQ_ID_MAX)}"
+    return request_dict
 
 
 class WebsocketBase(Client):
@@ -142,15 +142,13 @@ class WebsocketBase(Client):
         # TODO: allow multiple callbacks for a trigger
         self._callbacks[trigger] = callback
 
-    def _set_up_future(self: WebsocketBase, request: Request) -> None:
+    def _set_up_future(self: WebsocketBase, request_id: Union[int, str]) -> None:
         """
         Only to be called from the public send and request_impl functions.
         Given a request with an ID, ensure that that ID is backed by an open
         Future in self._open_requests.
         """
-        if request.id is None:
-            return
-        request_str = str(request.id)
+        request_str = str(request_id)
         if (
             request_str in self._open_requests
             and not self._open_requests[request_str].done()
@@ -160,17 +158,22 @@ class WebsocketBase(Client):
             )
         self._open_requests[request_str] = get_running_loop().create_future()
 
-    async def _do_send_no_future(self: WebsocketBase, request: Request) -> None:
+    async def _do_send_no_future(
+        self: WebsocketBase, request: Union[Request, Dict[str, Any]]
+    ) -> None:
+        if isinstance(request, Request):
+            request = request_to_websocket(request)
         await cast(WebSocketClientProtocol, self._websocket).send(
             json.dumps(
-                request_to_websocket(request),
+                request,
             ),
         )
 
     async def _do_send(self: WebsocketBase, request: Request) -> None:
         # we need to set up a future here, even if no one cares about it, so
         # that if a user submits a few requests with the same ID they fail.
-        self._set_up_future(request)
+        assert request.id is not None  # for mypy
+        self._set_up_future(request.id)
         await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
@@ -178,9 +181,11 @@ class WebsocketBase(Client):
         cast(Queue[Dict[str, Any]], self._messages).task_done()
         return msg
 
-    async def request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def request_json_impl(
+        self: WebsocketBase, request: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
-        Base ``request_impl`` implementation for Websockets.
+        Base ``request_json_impl`` implementation for Websockets.
 
         Arguments:
             request: An object representing information about a rippled request.
@@ -200,8 +205,8 @@ class WebsocketBase(Client):
         # if no ID on this request, generate and inject one, and ensure it
         # is backed by a future
         request_with_id = _inject_request_id(request)
-        request_str = str(request_with_id.id)
-        self._set_up_future(request_with_id)
+        request_str = str(request_with_id["id"])
+        self._set_up_future(request_str)
 
         # fire-and-forget the send, and await the Future
         create_task(self._do_send_no_future(request_with_id))
@@ -209,4 +214,21 @@ class WebsocketBase(Client):
 
         # remove the resolved Future, hopefully getting it garbage colleted
         del self._open_requests[request_str]
-        return websocket_to_response(raw_response)
+        return raw_response
+
+    async def request_impl(self: Client, request: Request) -> Response:
+        """
+        This is the main driver for a given Client's request. It must be
+        async because all of the helper functions in this library are
+        async-first.
+
+        Arguments:
+            request: An object representing information about a rippled request.
+
+        Returns:
+            The response from the server, as a Response object.
+
+        :meta private:
+        """
+        json_request = request_to_websocket(request)
+        return websocket_to_response(await self.request_json_impl(json_request))
