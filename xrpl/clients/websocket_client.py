@@ -11,7 +11,6 @@ from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.requests.request import Request
-from xrpl.models.response import Response
 
 
 class WebsocketClient(SyncClient, WebsocketBase):
@@ -197,7 +196,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
             self._do_send(request), cast(AbstractEventLoop, self._loop)
         ).result()
 
-    async def request_impl(self: WebsocketClient, request: Request) -> Response:
+    async def request_json_impl(
+        self: WebsocketClient, request: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         ``request_impl`` implementation for sync websockets that ensures the
         ``WebsocketBase.request_impl`` implementation is run on the other thread.
@@ -229,6 +230,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # completely block the main thread until completed,
         # just as if it were not async.
         return run_coroutine_threadsafe(
-            super().request_impl(request),
+            super().request_json_impl(request),
             cast(AbstractEventLoop, self._loop),
         ).result()
