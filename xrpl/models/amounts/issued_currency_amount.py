@@ -51,3 +51,12 @@ class IssuedCurrencyAmount(IssuedCurrency):
             IssuedCurrencyAmount,
             cls.from_dict({**issued_currency.to_dict(), "value": value}),
         )
+
+    def get_issued_currency(self: IssuedCurrencyAmount) -> IssuedCurrency:
+        """
+        Build an IssuedCurrency from this IssuedCurrencyAmount.
+
+        Returns:
+            The IssuedCurrency for this IssuedCurrencyAmount.
+        """
+        return IssuedCurrency(issuer=self.issuer, currency=self.currency)
