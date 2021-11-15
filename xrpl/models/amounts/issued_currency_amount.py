@@ -8,8 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Type, Union, cast
 
-from xrpl.models.currencies.issued_currency import IssuedCurrency
-from xrpl.models.currencies.xrp import XRP
+from xrpl.models.currencies import XRP, Currency, IssuedCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -32,7 +31,7 @@ class IssuedCurrencyAmount(IssuedCurrency):
 
     @classmethod
     def from_issued_currency(
-        cls: Type[IssuedCurrencyAmount], issued_currency: IssuedCurrency, value: str
+        cls: Type[IssuedCurrencyAmount], issued_currency: Currency, value: str
     ) -> Union[IssuedCurrencyAmount, str]:
         """
         Build an IssuedCurrencyAmount from an IssuedCurrency.
