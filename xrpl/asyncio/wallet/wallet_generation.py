@@ -105,7 +105,8 @@ def get_faucet_url(url: str) -> str:
     if url == "34.83.125.234":  # devnet IP
         return _DEV_FAUCET_URL
     raise XRPLFaucetException(
-        "Cannot fund an account with a client that is not on the testnet or devnet."
+        "Cannot fund an account with a client that is not on the testnet or devnet "
+        f"({url})."
     )
 
 
