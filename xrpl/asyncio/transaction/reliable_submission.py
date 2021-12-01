@@ -48,9 +48,12 @@ async def _wait_for_final_transaction_outcome(
         # outcome is not yet final
         return await _wait_for_final_transaction_outcome(transaction_hash, client)
 
+    error_code = result["meta"]["TransactionResult"]
+
     raise XRPLReliableSubmissionException(
         f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
-        f"last ledger sequence {last_ledger_sequence} in the transaction."
+        f"last ledger sequence {last_ledger_sequence} in the transaction. "
+        f"Error code: {error_code}"
     )
 
 
