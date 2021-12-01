@@ -201,7 +201,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
     ) -> Dict[str, Any]:
         """
         ``request_impl`` implementation for sync websockets that ensures the
-        ``WebsocketBase.request_impl`` implementation is run on the other thread.
+        ``WebsocketBase._do_request_impl`` implementation is run on the other thread.
 
         Arguments:
             request: An object representing information about a rippled request.

@@ -115,10 +115,14 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
     async def open(self: AsyncWebsocketClient) -> None:
         """Connects the client to the Web Socket API at the given URL."""
+        if self.is_open():
+            return
         await self._do_open()
 
     async def close(self: AsyncWebsocketClient) -> None:
         """Closes the connection."""
+        if not self.is_open():
+            return
         await self._do_close()
 
     async def __aenter__(self: AsyncWebsocketClient) -> AsyncWebsocketClient:
